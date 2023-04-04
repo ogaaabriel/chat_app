@@ -9,3 +9,15 @@
   min-width: 100vw;
   background-color: whitesmoke;
 }
+
+.home-container {
+  min-height: 100vh;
+  min-width: 100vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.enter-form {
+  max-width: 600px;
+}
