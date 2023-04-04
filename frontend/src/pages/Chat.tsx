@@ -1,10 +1,10 @@
-import { Link } from "react-router-dom";
+import Link from "next/link";
 
-const Chat = (): JSX.Element => {
+const Chat = () => {
   return (
     <>
       <h1>Chat</h1>
-      <Link to={"/"}>Sair</Link>
+      <Link href={"/"}>Home</Link>
     </>
   );
 };
