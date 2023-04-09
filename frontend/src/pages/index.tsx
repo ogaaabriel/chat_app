@@ -1,66 +1,98 @@
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
+import socketIo from "socket.io-client";
 
-import { EnterRoom } from "@/types";
-import { useRouter } from "next/router";
+import { JoinRoom as JRoom, Message } from "@/types";
+import JoinRoom from "@/components/JoinRoom";
+import Chat from "@/components/Chat";
 
-const initialFormValues: EnterRoom = {
+const joinRoom = "join_room";
+const receiveMessages = "receive_messages";
+const sendMessage = "send_message";
+
+const initialFormValues: JRoom = {
   username: "",
   roomname: "javascript",
 };
 
-const Home = () => {
-  const [formValues, setFormValues] = useState<EnterRoom>(initialFormValues);
-  const router = useRouter();
+const initialMessageValue: Message = {
+  text: "",
+};
 
-  const handleEnterRoom = (e: FormEvent) => {
+const io = socketIo("http://localhost:8000", { autoConnect: false });
+
+const Home = () => {
+  const [formValues, setFormValues] = useState<JRoom>(initialFormValues);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [message, setMessage] = useState<Message>(initialMessageValue);
+  const [isError, setIsError] = useState(false);
+  const [isConnected, setIsConnected] = useState(io.connected);
+
+  useEffect(() => {
+    const onReceiveMessage = (data: Message) => {
+      setMessages((prevMessages) => [...prevMessages, data]);
+    };
+    io.on(receiveMessages, onReceiveMessage);
+    return () => {
+      io.disconnect();
+    };
+  }, []);
+
+  const handleJoinRoom = (e: FormEvent) => {
     e.preventDefault();
 
     if (!formValues.username || !formValues.roomname) {
       return;
     }
 
-    console.log(formValues);
-    router.push("/chat");
+    try {
+      io.connect();
+      io.emit(joinRoom, { ...formValues });
+      setIsConnected(true);
+    } catch (error) {
+      setIsError(true);
+    }
+
+    setFormValues(initialFormValues);
+  };
+
+  const handleSendMessage = (e: FormEvent) => {
+    e.preventDefault();
+
+    if (!message) {
+      return;
+    }
+
+    io.emit(sendMessage, message);
+    setMessages((prevMessages) => [...prevMessages, message]);
+    setMessage(initialMessageValue);
+  };
+
+  const handleExitRoom = () => {
+    io.disconnect();
+    setIsConnected(false);
+    setMessages([]);
+    setMessage(initialMessageValue);
   };
 
   return (
-    <div className="home-container">
-      <div className="card enter-form p-4 p-sm-5">
-        <h1 className="text-center mb-4">Entre em uma sala</h1>
-        <form onSubmit={handleEnterRoom}>
-          <div className="mb-3">
-            <input
-              className="form-control"
-              type="text"
-              name="name"
-              value={formValues?.username}
-              onChange={(e) =>
-                setFormValues({ ...formValues, username: e.target.value })
-              }
-              placeholder="Nome de usuário"
-              required
-            />
-          </div>
-          <div className="mb-3">
-            <select
-              className="form-select"
-              name="room"
-              id="room"
-              onChange={(e) =>
-                setFormValues({ ...formValues, roomname: e.target.value })
-              }
-            >
-              <option value="javascript">JavaScript</option>
-              <option value="python">Python</option>
-              <option value="java">Java</option>
-            </select>
-          </div>
-          <button className="btn btn-primary" type="submit">
-            Entrar
-          </button>
-        </form>
-      </div>
-    </div>
+    <>
+      {isConnected ? (
+        <Chat
+          messages={messages}
+          message={message}
+          onSendMessage={handleSendMessage}
+          onTypeMessage={setMessage}
+          onExitChat={handleExitRoom}
+        />
+      ) : (
+        <JoinRoom
+          formValues={formValues}
+          onChangeFormValues={setFormValues}
+          onJoinRoom={handleJoinRoom}
+          isError={isError}
+        />
+      )}
+    </>
   );
 };
 

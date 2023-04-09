@@ -4,6 +4,12 @@
   box-sizing: border-box;
 }
 
+ul {
+  list-style: none;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
 .main-container {
   min-height: 100vh;
   min-width: 100vw;
@@ -16,6 +22,22 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.chat-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.messages-container {
+  max-height: 300px;
+  overflow: scroll;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.messages-container::-webkit-scrollbar {
+  display: none;
 }
 
 .enter-form {
