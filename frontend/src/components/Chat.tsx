@@ -12,27 +12,48 @@ const Chat = ({
   onExitChat,
   onSendMessage,
   onTypeMessage,
+  title,
   messages,
   message,
 }: {
   onExitChat: MouseEventHandler;
   onSendMessage: FormEventHandler;
   onTypeMessage: Dispatch<SetStateAction<Message>>;
+  title: string;
   messages: Message[];
   message: Message;
 }) => {
   return (
     <div className="p-4 p-sm-5 chat-container">
-      <h1>Chat</h1>
-      <button className="btn btn-sm btn-danger" onClick={onExitChat}>
-        Sair
-      </button>
+      <div className="d-flex gap-2">
+        <h1>{title}</h1>
+        <button className="btn btn-link" onClick={onExitChat}>
+          <i className="bi-box-arrow-left text-danger fs-3"></i>
+        </button>
+      </div>
 
       <div className="my-4 p-5 bg-white rounded">
-        <ul className="messages-container mb-2">
+        <ul className="messages-container mb-4">
           {messages.map((message) => (
-            <li key={v4()} className="card mb-2 px-2 py-1">
-              {message.text}
+            <li
+              key={v4()}
+              className={
+                message.type == "notification"
+                  ? "notification bg-secondary"
+                  : message.type == "message"
+                  ? "message bg-success"
+                  : "usermessage bg-primary"
+              }
+            >
+              <span className="d-flex flex-column">
+                {message.type == "message" && (
+                  <span className="message-info">{message.username}</span>
+                )}
+                <span>{message.text}</span>
+              </span>
+              <span className="message-info align-self-end">
+                {message.date}
+              </span>
             </li>
           ))}
         </ul>
@@ -48,7 +69,9 @@ const Chat = ({
               }
               placeholder="Mensagem..."
             />
-            <button className="btn btn-sm btn-primary">Enviar</button>
+            <button className="btn btn-sm btn-primary">
+              <i className="bi-send"></i>
+            </button>
           </div>
         </form>
       </div>

@@ -43,3 +43,40 @@ ul {
 .enter-form {
   max-width: 600px;
 }
+
+.notification {
+  background-color: gray;
+  color: white;
+  margin-bottom: 5px;
+  padding: 3px;
+  border-radius: 5px;
+  text-align: center;
+}
+
+.message {
+  background-color: green;
+  color: whitesmoke;
+  margin-bottom: 5px;
+  padding: 2px;
+  padding-left: 10px;
+  border-radius: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.usermessage {
+  background-color: blue;
+  color: whitesmoke;
+  margin-bottom: 5px;
+  padding: 2px;
+  padding-left: 10px;
+  border-radius: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.message-info {
+  font-size: 0.75rem;
+}

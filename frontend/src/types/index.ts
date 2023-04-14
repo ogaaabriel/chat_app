@@ -4,5 +4,9 @@ export interface JoinRoom {
 }
 
 export interface Message {
-  text: string;
+  text?: string;
+  userId?: string;
+  username?: string;
+  type?: string;
+  date?: string;
 }

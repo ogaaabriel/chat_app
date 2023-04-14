@@ -35,11 +35,13 @@ const onJoinRoom = (data: Connection, socket: Socket) => {
   const { username, roomname } = data;
   users.set(socket.id, { username, roomname });
   socket.join(roomname);
-  socket
-    .to(roomname)
-    .emit(receiveMessages, { text: username + " entrou no chat" });
+  socket.to(roomname).emit(receiveMessages, {
+    text: username + " entrou no chat",
+    type: "notification",
+  });
   socket.emit(receiveMessages, {
     text: username + ", bem vindo a sala " + roomname,
+    type: "notification",
   });
 };
 
@@ -48,7 +50,9 @@ const onSendMessage = (data: Message, socket: Socket) => {
   if (!connectionData) {
     return;
   }
-  socket.to(connectionData.roomname).emit(receiveMessages, data);
+  socket
+    .to(connectionData.roomname)
+    .emit(receiveMessages, { ...data, type: "message" });
 };
 
 const onDisconnect = (socket: Socket) => {
@@ -58,6 +62,7 @@ const onDisconnect = (socket: Socket) => {
   }
   socket.to(connectionData.roomname).emit(receiveMessages, {
     text: connectionData.username + " deixou o chat",
+    type: "notification",
   });
   users.delete(socket.id);
 };

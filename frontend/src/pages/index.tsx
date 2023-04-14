@@ -22,6 +22,8 @@ const io = socketIo("http://localhost:8000", { autoConnect: false });
 
 const Home = () => {
   const [formValues, setFormValues] = useState<JRoom>(initialFormValues);
+  const [username, setUsername] = useState("");
+  const [chatTitle, setChatTitle] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [message, setMessage] = useState<Message>(initialMessageValue);
   const [isError, setIsError] = useState(false);
@@ -33,6 +35,7 @@ const Home = () => {
     };
     io.on(receiveMessages, onReceiveMessage);
     return () => {
+      io.off(receiveMessages);
       io.disconnect();
     };
   }, []);
@@ -48,6 +51,8 @@ const Home = () => {
       io.connect();
       io.emit(joinRoom, { ...formValues });
       setIsConnected(true);
+      setUsername(formValues.username);
+      setChatTitle(formValues.roomname);
     } catch (error) {
       setIsError(true);
     }
@@ -62,6 +67,11 @@ const Home = () => {
       return;
     }
 
+    message.date = new Date().toLocaleTimeString();
+    message.username = username;
+    message.userId = io.id;
+    message.type = "usermessage";
+
     io.emit(sendMessage, message);
     setMessages((prevMessages) => [...prevMessages, message]);
     setMessage(initialMessageValue);
@@ -70,6 +80,8 @@ const Home = () => {
   const handleExitRoom = () => {
     io.disconnect();
     setIsConnected(false);
+    setUsername("");
+    setChatTitle("");
     setMessages([]);
     setMessage(initialMessageValue);
   };
@@ -78,6 +90,7 @@ const Home = () => {
     <>
       {isConnected ? (
         <Chat
+          title={chatTitle}
           messages={messages}
           message={message}
           onSendMessage={handleSendMessage}
